@@ -36,7 +36,7 @@ export default function Home({ product }: HomeProps) {
   )
 }
 
-// ======================== NEXT.JS: SERVER SIDE RENDERING (SSR) ========================
+// STATIC SITE GENERATION (SSG) ========================
 
 // a função precisa obrigatoriamente possuir esse nome
 export const getStaticProps: GetStaticProps = async () => {
