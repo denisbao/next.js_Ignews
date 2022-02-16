@@ -23,17 +23,31 @@ export default NextAuth({
 
       try {
         await fauna.query (
-          db.Create (
-            db.Collection('users'),
-            {data: { email }}
+          db.If(
+            db.Not(
+              db.Exists(
+                db.Match(
+                  db.Index('user_by_email'),
+                  db.Casefold(user.email)
+                )
+              )
+            ),
+            db.Create (
+              db.Collection('users'),
+              {data: { email }}
+            ),
+            db.Get(
+              db.Match(
+                db.Index('user_by_email'),
+                db.Casefold(user.email)
+              )
+            )
           )
         )
         return true
-      } catch (error) {
+      } catch {
         return false
       }
-
-      
     },
   }
 })
