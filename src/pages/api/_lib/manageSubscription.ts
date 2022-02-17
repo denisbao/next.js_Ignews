@@ -1,8 +1,8 @@
 import { fauna } from "../../../services/fauna";
-import { query as db } from 'faunadb'
+import { query as db, Replace } from 'faunadb'
 import { stripe } from "../../../services/stripe";
 
-export async function saveSubscription (subscriptionId: string, customerId: string) {
+export async function saveSubscription (subscriptionId: string, customerId: string, createAction = false) {
 
   // Recuperando REF do usuário do FaunaDB (FQL)
   const userRef = await fauna.query(
@@ -28,12 +28,31 @@ export async function saveSubscription (subscriptionId: string, customerId: stri
     price_id: subscription.items.data[0].price.id,
   }
 
-  // Salvando informações no FaunaDB
-  await fauna.query(
-    db.Create(
-      db.Collection('subscriptions'),
-      { data: subscriptionData }
+
+  // Salvando informação da subscription no FaunaDB, caso for uma nova ou atualizando uma já existente
+  if (createAction) {
+    await fauna.query(
+      db.Create(
+        db.Collection('subscriptions'),
+        { data: subscriptionData }
+      )
     )
-  )
+  }
+  else {
+    await fauna.query(
+      db.Replace(
+        db.Select(
+          "ref",
+          db.Get(
+            db.Match(
+              db.Index('subscription_by_id'),
+              subscriptionId,
+            )
+          )
+        ),
+        { data: subscriptionData }
+      )
+    )
+  }
   
 }
