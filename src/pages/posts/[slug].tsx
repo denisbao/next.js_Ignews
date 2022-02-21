@@ -40,8 +40,19 @@ export default function Post({ post }: PostProps) {
 // possível fazer o controle de acesso ao conteúdo apenas para usuários com
 // uma assinatura ativa
 export const getServerSideProps: GetServerSideProps = async ({ req, params }) => {
+
   const session = await getSession({ req })
   const { slug } = params
+
+  // Redirecionamento caso o usuário não tenha uma subscriptio ativa
+  if (!session.activeSubscription) {
+    return {
+      redirect: {
+        destination: '/',
+        permanent: false,
+      }
+    }
+  }
 
   // Recuperação do conteúdo do post pelo Prismic CMS
   const prismic = getPrismicClient(req)
