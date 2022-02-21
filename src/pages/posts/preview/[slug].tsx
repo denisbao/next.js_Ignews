@@ -1,4 +1,4 @@
-import { GetStaticProps } from "next"
+import { GetStaticPaths, GetStaticProps } from "next"
 import { getSession, useSession } from "next-auth/react"
 import Head from "next/head"
 import Link from "next/link"
@@ -54,13 +54,25 @@ export default function PostPreview({ post }: PostPreviewProps) {
 }
 
 
-export const getStaticPaths = () => {
+// CONFIGURAÇÃO DA GERAÇÃO DO CONTEÚDO ESTÁTICO
+// "Paths" define quais previews de posts (pelo slug) devem ou não ter suas páginas
+// estáticas geradas durante a build da aplicaçãp. Se esse campo for deixado em 
+// branco, as páginas estáticas são geradas no primeiro acesso.
+// "Fallback" pode receber 3 valores (true, false ou blocking). 
+//   - true: faz a requisição dos dados pelo browser, podendo construir o html sem conteúdo
+//   - false: se a página não tiver sido gerada estaticamente, retorna erro 404
+//   - blocking: se a página não tiver sido gerada estaticamente, controi o html e requisita o 
+//               conteúdo no servidor Next.js e só após isso mostra a página
+export const getStaticPaths: GetStaticPaths = async () => {
   return {
-    paths: [],
+    paths: [ 
+      { params: { 
+        slug: 'axios---um-cliente-http-full-stack'
+      }} 
+    ], 
     fallback: 'blocking'
   }
 }
-
 
 
 // CARREGAMENTO DO CONTEÚDO DO POSTPREVIEW:
